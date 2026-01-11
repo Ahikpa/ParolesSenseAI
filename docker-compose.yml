@@ -1,0 +1,33 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Service pour le Backend (API FastAPI)
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    # Le nom 'backend' peut être utilisé comme nom d'hôte par les autres services
+    # de ce même réseau Docker Compose.
+    hostname: backend
+    # Pas besoin de mapper les ports si seul le frontend y accède via le réseau interne,
+    # mais on le fait ici pour pouvoir tester l'API directement si besoin.
+    ports:
+      - "8000:8000"
+
+  # Service pour le Frontend (Interface Streamlit)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8501:8501"
+    # C'est ici la magie de Docker Compose.
+    # On définit la variable d'environnement que notre code Streamlit va lire.
+    # On lui dit de contacter le service nommé 'backend' sur le port 8000.
+    environment:
+      - API_URL=http://backend:8000
+    # Indique à Docker Compose que le frontend dépend du backend.
+    # Cela garantit que le backend sera démarré avant le frontend.
+    depends_on:
+      - backend
