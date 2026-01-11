@@ -5,13 +5,10 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    hostname: backend
-    # On laisse les ports si vous voulez un accès direct,
-    # mais Dokploy passera par le port 8000 via le domaine.
+    # Indispensable pour que le frontend puisse faire des requêtes internes si besoin
+    hostname: backend 
     ports:
       - "8000:8000"
-    networks:
-      - dokploy-network
 
   frontend:
     build:
@@ -20,13 +17,7 @@ services:
     ports:
       - "8501:8501"
     environment:
-      # TRÈS IMPORTANT : Utilisez l'URL publique que vous allez configurer dans Dokploy
+      # Utilisez l'IP publique SI le port 8000 est ouvert dans Oracle Cloud
       - API_URL=http://84.8.129.144:8000
     depends_on:
       - backend
-    networks:
-      - dokploy-network
-
-networks:
-  dokploy-network:
-    external: true
